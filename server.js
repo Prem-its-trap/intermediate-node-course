@@ -5,7 +5,15 @@ const port = 8000;
 const app = express();
 const User = require("./models/User");
 // connect to the local database
-mongoose.connect("mongodb://localhost/userData");
+mongoose
+  .connect("mongodb://localhost:27017/userData", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
+  .then(() => {
+    console.log("DB CONNECTED");
+  });
 
 app.use(bodyParser.json());
 
@@ -17,9 +25,9 @@ app.listen(port, () => {
 app.post("/users", (req, res) => {
   User.create(
     {
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
+      name: req.body.newData.name,
+      email: req.body.newData.email,
+      password: req.body.newData.password,
     },
     (err, data) => {
       if (err) {
@@ -38,11 +46,17 @@ app
   .route("/users/:id")
   // READ
   .get((req, res) => {
-    const id = "607f3e595d6de62d2849b0d9";
-    // const id = req.params._id;
+    // const id = "607f3e595d6de62d2849b0d9";
+    const id = req.params.id;
+    console.log(id);
     User.findById(id, (err, data) => {
       if (err) {
         res.json({ success: false, message: err });
+      } else if (!data) {
+        res.json({
+          success: false,
+          message: "error occuered",
+        });
       } else {
         res.json({
           success: true,
