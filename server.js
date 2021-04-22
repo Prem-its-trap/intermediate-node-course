@@ -21,26 +21,47 @@ app.listen(port, () => {
   console.log(`server is listening on port:${port}`);
 });
 
+function sendResponse(res, err, data) {
+  if (err) {
+    res.json({
+      success: false,
+      message: err,
+    });
+  } else if (!data) {
+    res.json({
+      success: false,
+      message: "Not Found",
+    });
+  } else {
+    res.json({
+      success: true,
+      data: data,
+    });
+  }
+}
+
+//       name: req.body.newData.name,
+// email: req.body.newData.email,
+// password: req.body.newData.password,
+// ALTERNATE OF THIS IS TO SPREAD THE DATA LIKE THIS =====>> {...req.body.newData}
+
 // CREATE
 app.post("/users", (req, res) => {
   User.create(
     {
-      name: req.body.newData.name,
-      email: req.body.newData.email,
-      password: req.body.newData.password,
+      ...req.body.newData,
     },
     (err, data) => {
-      if (err) {
-        res.json({ success: false, message: err });
-      } else if (!data) {
-        res.json({ success: false, message: "Not found" });
-      } else {
-        res.json({ success: true, data: data });
-      }
+      sendResponse(res, err, data);
     }
   );
 });
 
+app.get("/users", (req, res) => {
+  User.find({}, (err, data) => {
+    sendResponse(res, err, data);
+  });
+});
 // route chaining
 app
   .route("/users/:id")
@@ -50,19 +71,7 @@ app
     const id = req.params.id;
     console.log(id);
     User.findById(id, (err, data) => {
-      if (err) {
-        res.json({ success: false, message: err });
-      } else if (!data) {
-        res.json({
-          success: false,
-          message: "unable to find data",
-        });
-      } else {
-        res.json({
-          success: true,
-          data: data,
-        });
-      }
+      sendResponse(res, err, data);
     });
   })
   // UPDATE
@@ -78,43 +87,13 @@ app
         new: true,
       },
       (err, data) => {
-        if (err) {
-          res.json({
-            success: false,
-            message: err,
-          });
-        } else if (!data) {
-          res.json({
-            success: false,
-            message: "Not Found",
-          });
-        } else {
-          res.json({
-            success: true,
-            data: data,
-          });
-        }
+        sendResponse(res, err, data);
       }
     );
   })
   // DELETE
   .delete((req, res) => {
     User.findByIdAndDelete(req.params.id, (err, data) => {
-      if (err) {
-        res.json({
-          success: false,
-          message: err,
-        });
-      } else if (!data) {
-        res.json({
-          success: false,
-          message: "not found",
-        });
-      } else {
-        res.json({
-          success: true,
-          data: data,
-        });
-      }
+      sendResponse(res, err, data);
     });
   });
