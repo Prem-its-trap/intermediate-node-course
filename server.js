@@ -46,10 +46,13 @@ function sendResponse(res, err, data) {
 // ALTERNATE OF THIS IS TO SPREAD THE DATA LIKE THIS =====>> {...req.body.newData}
 
 // CREATE
-app.post("/users", (req, res) => {
+app.post("/users", (req, res, next) => {
   User.create(
     {
-      ...req.body.newData,
+      // ...req.body.newData,
+      name: req.body.newData.name,
+      email: req.body.newData.email,
+      password: req.body.newData.password,
     },
     (err, data) => {
       sendResponse(res, err, data);
